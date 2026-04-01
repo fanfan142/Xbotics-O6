@@ -128,6 +128,12 @@ pip install -r requirements.txt
 
 当前仓库中的 `app/services/o6_service.py` 只是对 SDK 做了一层**更适合 GUI 调用**的服务封装，不是重新实现底层协议。
 
+命名约定如下：
+
+- 对外展示名：`Xbotics O6`
+- GitHub 仓库名：`Xbotics-O6`
+- 本地校准目录：`.xbotics_o6`
+
 ### 5.2 MediaPipe Hands
 
 本项目使用 MediaPipe Hands 做单手 21 点关键点检测。
@@ -330,9 +336,12 @@ python -c "from linkerbot import O6; print('linkerbot ok')"
 
 重点确认：
 
+- 当前唯一运行配置文件位置是 `runtime/config.json`
 - `side` 是否和你的设备一致（`left` / `right`）
 - `interface_name` 是否和你的 PCAN 设备名一致
 - `interface_type` 是否和当前驱动环境一致
+
+如果你看到旧截图、旧笔记或旧版本文档里写的是 `assets/config.json`，那已经是过时位置；当前仓库统一使用 `runtime/config.json`。
 
 ### 9.6 启动程序
 
@@ -349,6 +358,14 @@ python main.py
 启动程序后，如果 O6 连接成功，点击左侧按钮即可执行对应姿态。
 
 ### 10.2 摄像头跟随
+
+校准数据默认保存在用户目录下：
+
+- 新路径：`~/.xbotics_o6/calibration.json`
+- 兼容旧路径：`~/.xbotics3/calibration.json`
+
+如果你以前用过旧版本，程序会优先兼容已有的旧标定文件。
+
 
 1. 连接 O6 和摄像头
 2. 点击“启动摄像头”
@@ -495,6 +512,6 @@ python -c "from linkerbot import O6; print('ok')"
 
 ## 15. 协议
 
-当前仓库未单独放置 License 文件。
+当前仓库暂未附带单独的 `LICENSE` 文件。
 
-如果你计划长期公开维护，建议补一个 `LICENSE`（例如 MIT）。
+如果你计划长期公开维护，建议尽快补充正式许可证（例如 MIT），这样仓库的复用边界会更清晰。
