@@ -109,7 +109,7 @@ class CameraTeleop:
     ) -> None:
         self._camera = camera_service
         self._o6 = o6_service
-        self._calib_file = Path(calib_file) if calib_file else Path.home() / ".xbotics3" / "calibration.json"
+        self._calib_file = Path(calib_file) if calib_file else Path.home() / ".xbotics_o6" / "calibration.json"
         self._calib_file.parent.mkdir(parents=True, exist_ok=True)
 
         self._calibration = dict(DEFAULT_CALIBRATION)

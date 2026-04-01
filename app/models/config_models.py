@@ -15,7 +15,7 @@ class O6Config:
 @dataclass
 class UIConfig:
     theme: str = "dark"
-    window_title: str = "XBotics2 O6 控制台"
+    window_title: str = "Xbotics O6 控制台"
     window_width: int = 1440
     window_height: int = 920
 
