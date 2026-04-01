@@ -1,0 +1,17 @@
+{
+  "o6": {
+    "side": "right",
+    "interface_name": "PCAN_USBBUS1",
+    "interface_type": "pcan",
+    "default_speed": 80,
+    "default_acceleration": 60,
+    "timeout_ms": 600,
+    "force_timeout_ms": 1200
+  },
+  "ui": {
+    "theme": "dark",
+    "window_title": "XBotics2 O6 控制台",
+    "window_width": 1440,
+    "window_height": 920
+  }
+}
