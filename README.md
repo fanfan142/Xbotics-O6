@@ -410,52 +410,21 @@ where python
 
 如果没有读到，就检查两个目录下的文件是否真的存在。
 
-## 如何尽快打包出同样的 exe
+## 本地自打包
 
-当前仓库里没有直接保留 PyInstaller 打包脚本，但你本地旧工程 `xbotics2` 里有现成打包方案：
-
-- `F:\sim\灵心巧手\o6\o6_student_minipack\xbotics2\build_dist.py`
-- `F:\sim\灵心巧手\o6\o6_student_minipack\xbotics2\xbotics2.spec`
-
-从这两个文件看，原来的 exe 是通过 **PyInstaller** 打出来的，核心思路是：
-
-1. 安装 PyInstaller
-2. 准备好和运行环境一致的 Python、linkerbot、mediapipe、can、serial 等依赖
-3. 用 `spec` 文件把 `assets/`、`runtime/` 和需要的第三方包一起打进发布目录
-4. 再把整个发布目录压成 zip
-
-### 最快的复现方式
-
-如果你只是想尽快重新打出一个可分发 exe，最省事的方式不是从零写 spec，而是：
-
-1. 复制 `xbotics2` 里的 `build_dist.py` 和 `xbotics2.spec`
-2. 把其中路径和名称改成当前仓库版本
-3. 在已经能正常运行 GUI 的同一套 Python 环境里执行：
+使用 PyInstaller 打包为 Windows exe：
 
 ```bash
-python -m PyInstaller --noconfirm your.spec
+pip install pyinstaller
+py -3.13 -m PyInstaller --onefile --windowed --name "Xbotics_O6控制台" \
+  --add-data "assets;assets" --add-data "runtime;runtime" \
+  --hidden-import linkerbot --hidden-import can \
+  --hidden-import mediapipe --hidden-import cv2 \
+  --hidden-import PySide6 --hidden-import scipy \
+  main.py
 ```
 
-### 打包前必须满足
-
-- `python main.py` 已经能正常启动
-- `from linkerbot import O6` 能导入
-- `mediapipe`、`can`、`serial` 都已安装
-- `assets/hand_landmarker.task` 和 `runtime/config.json` 已准备好
-
-### 打包结果建议
-
-建议最终发布结构保持和旧版一致：
-
-```text
-Xbotics_O6控制台/
-├── Xbotics_O6控制台.exe
-├── _internal/
-├── assets/
-└── runtime/
-```
-
-然后再把整个目录压缩成 zip 发 release。
+打包完成后，`dist/Xbotics_O6控制台.exe` 和 `assets/`、`runtime/` 一起分发即可。
 
 ## 协议
 
