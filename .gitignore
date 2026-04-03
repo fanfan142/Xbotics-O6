@@ -13,7 +13,10 @@ ENV/
 env/
 .pytest_cache/
 .ruff_cache/
-*.spec
 *.log
 .DS_Store
 Thumbs.db
+prompt_version/o6_openclaw_config.json
+prompt_version/tools/o6_bridge.exe
+prompt_version/**/__pycache__/
+prompt_version/**/*.pyc

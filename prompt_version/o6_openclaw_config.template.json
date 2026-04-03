@@ -1,0 +1,14 @@
+{
+  "side": "right",
+  "interface_name": "PCAN_USBBUS1",
+  "interface_type": "pcan",
+  "default_speed": 80,
+  "default_acceleration": 60,
+  "timeout_ms": 600,
+  "force_timeout_ms": 1200,
+  "settle_sec": 1.2,
+  "fast_timeout_ms": 200,
+  "fast_settle_sec": 0.2,
+  "collision_threshold_ma": 300,
+  "notes": "Windows + PCAN 示例。Ubuntu/Linux 通常改成 can0 + socketcan，并按实际左右手修改 side。"
+}
