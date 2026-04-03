@@ -1,24 +1,33 @@
 # Xbotics O6 控制台
 
-用于控制灵心巧手 O6 的 Python 桌面演示程序。
-
-支持：
+用于控制灵心巧手 O6 的 Windows 桌面程序，包含：
 
 - 摄像头跟随
 - 猜拳互动
-- 预设手势控制
-- 基于 PCAN-USB 的 CAN 通信
+- 固定手势控制
+- OpenClaw 离线调用提示词
+- 完整打包与分发流程
 
-## 快速开始
+这个仓库的目标不是做底层 SDK，而是提供一个**可运行、可打包、可发给学员**的 O6 控制台工程。
 
-```bash
-git clone https://github.com/fanfan142/Xbotics-O6.git
-cd Xbotics-O6
-py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python main.py
+---
+
+## 目录结构
+
+```text
+Xbotics-O6/
+├── app/                    # GUI 与业务逻辑
+├── assets/                 # 模型与静态资源
+├── runtime/                # 运行配置
+├── prompt_version/         # 给 OpenClaw 使用的离线控制包模板
+├── build_dist.py           # 一键打包脚本
+├── xbotics2.spec           # PyInstaller 配置
+├── main.py                 # 程序入口
+├── requirements.txt        # 运行依赖
+└── README.txt              # 分发包内附带说明
 ```
+
+---
 
 ## 环境要求
 
@@ -26,117 +35,29 @@ python main.py
 
 - Windows 10 / 11
 
-### Python 版本
+### Python
 
 推荐：
 
-- **Python 3.13**
+- Python 3.11+
 
 说明：
 
-- 当前依赖组合在 Python 3.13 下更合适
-- 3.10 ~ 3.12 可以自行尝试，但 README 以 3.13 为准
+- 本仓库已在当前打包链路中使用 Python 3.11 完成构建。
+- `prompt_version/tools/o6_bridge.py` 的脚本模式建议 Python 3.12+。
+- 源码仓库默认提交的是 **可重建模板**，不默认提交 `o6_bridge.exe`。
+- 如果你在分发阶段额外放入 `o6_bridge.exe`，则学员侧可以不依赖本机 Python。
 
-### 硬件要求
+### 硬件
 
-| 硬件 | 说明 |
-| --- | --- |
-| O6 灵巧手 | 被控设备 |
-| PCAN-USB | 用于和 O6 通信 |
-| USB 摄像头 | 用于手势识别 |
-| Windows PC | 建议 4GB+ 内存 |
+- O6 灵巧手
+- PCAN-USB
+- USB 摄像头
+- Windows PC
 
-## 依赖
+---
 
-安装：
-
-```bash
-pip install -r requirements.txt
-```
-
-主要依赖：
-
-- PySide6
-- opencv-python
-- mediapipe
-- numpy
-- python-can
-- pydantic
-- scipy
-
-## 上游 SDK
-
-本项目通过 `linkerbot-python-sdk` 控制 O6。
-
-代码里主要用到：
-
-- `from linkerbot import O6`
-- `hand.angle.set_angles(...)`
-- `hand.get_snapshot()`
-
-所以这个仓库不是底层 SDK，本质上是一个 **基于 linkerbot Python SDK 的 GUI 样例程序**。
-
-## 仓库结构
-
-```text
-Xbotics-O6/
-├── app/
-│   ├── constants.py
-│   ├── models/
-│   │   └── config_models.py
-│   ├── services/
-│   │   ├── camera_service.py
-│   │   ├── camera_teleop.py
-│   │   └── o6_service.py
-│   └── ui/
-│       └── main_window.py
-├── assets/
-│   └── hand_landmarker.task
-├── runtime/
-│   └── config.json
-├── main.py
-├── requirements.txt
-└── LICENSE
-```
-
-## 控制流程
-
-```text
-摄像头帧
-  ↓
-CameraService
-  ↓
-MediaPipe Hands
-  ↓
-CameraTeleop（标定 + 特征映射 + 平滑）
-  ↓
-O6Service
-  ↓
-linkerbot SDK
-  ↓
-O6 灵巧手
-```
-
-## O6 关节定义
-
-| 索引 | 关节名 | 说明 |
-| --- | --- | --- |
-| 0 | 拇指弯曲 | 拇指屈伸 |
-| 1 | 拇指侧摆 | 拇指外展 / 内收 |
-| 2 | 食指 | 食指弯曲 |
-| 3 | 中指 | 中指弯曲 |
-| 4 | 无名指 | 无名指弯曲 |
-| 5 | 小指 | 小指弯曲 |
-
-角度范围使用 `0 ~ 100`。
-
-## 拉库后怎么运行
-
-官网与参考：
-
-- LinkerBot 官网：<https://www.linkerbot.cn/index>
-- MediaPipe 资料：<https://chuoling.github.io/mediapipe/>
-
+## 从源码运行
 
 ### 1. 克隆仓库
 
@@ -150,293 +71,213 @@ cd Xbotics-O6
 PowerShell：
 
 ```powershell
-py -3.13 -m venv .venv
+py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
-
-CMD：
-
-```bat
-py -3.13 -m venv .venv
-.venv\Scripts\activate.bat
 ```
 
 ### 3. 安装依赖
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
 ### 4. 准备 linkerbot SDK
 
-先确认当前 Python 环境能导入：
+运行前请先确认当前 Python 环境能导入：
 
-```bash
+```powershell
 python -c "from linkerbot import O6; print('linkerbot ok')"
 ```
 
-如果报错，说明你当前环境还没准备好 linkerbot SDK。
+如果这里失败，说明当前环境还没有准备好 O6 底层 SDK。
 
-### 5. 安装 PCAN 驱动
-
-Windows 下到 PEAK-System 官方页面下载安装：
-
-- Drivers 总页：<https://www.peak-system.com/support/downloads/drivers/>
-- Driver Packages：<https://www.peak-system.com/support/downloads/drivers/driver-packages/>
-
-建议安装：
-
-- **Device Driver Setup 5.x for Windows**
-
-安装后会有：
-
-- PEAK-Settings
-- PCAN-View
-
-### 6. 确认 PCAN 接口名
-
-打开 **PEAK-Settings** 或 **PCAN-View**，找到当前设备通道名，例如：
-
-- `PCAN_USBBUS1`
-- `PCAN_USBBUS2`
-
-把这个名字填进配置文件的 `interface_name`。
-
-如果换过 USB 口、重装过驱动，名字可能变化，连不上时请重新确认。
-
-### 7. 修改配置文件
+### 5. 检查运行配置
 
 编辑：
 
 - `runtime/config.json`
 
-重点确认：
+Windows + PCAN 常见配置：
 
-- `side`：`left` 或 `right`
-- `interface_name`：例如 `PCAN_USBBUS1`
-- `interface_type`：通常是 `pcan`
+```json
+{
+  "o6": {
+    "side": "right",
+    "interface_name": "PCAN_USBBUS1",
+    "interface_type": "pcan",
+    "default_speed": 80,
+    "default_acceleration": 60,
+    "timeout_ms": 600,
+    "force_timeout_ms": 1200
+  }
+}
+```
 
-当前仓库唯一使用的运行配置文件位置是：
+### 6. 启动程序
 
-- `runtime/config.json`
-
-### 8. 启动程序
-
-```bash
+```powershell
 python main.py
 ```
 
-## 使用方法
+---
 
-### 预设手势
+## 程序内 OpenClaw 按钮说明
 
-程序启动后，如果 O6 已连接，点击左侧按钮即可执行对应动作。
+程序里的 **“OpenClaw 调用说明”** 按钮会：
 
-### 摄像头跟随
+1. 读取当前分发目录下的 `prompt_version/PROMPT.md`
+2. 自动把 `__PROMPT_VERSION_DIR__` 替换成当前真实绝对路径
+3. 弹出一份可直接复制给 OpenClaw 的完整提示词
 
-1. 连接 O6 和摄像头
-2. 点击“启动摄像头”
-3. 点击“启动跟随”
-4. 依次做：
-   - 张开标定
-   - 握拳标定
-   - 拇指内收标定
-5. 标定完成后开始实时跟随
+也就是说：
 
-校准数据默认位置：
+- 如果你运行的是打包后的控制台，按钮里显示的是**当前包内可直接使用**的提示词
+- 不需要手改 prompt 路径
+- 更适合学员直接复制使用
 
-- 新路径：`~/.xbotics_o6/calibration.json`
-- 兼容旧路径：`~/.xbotics3/calibration.json`
+---
 
-### 猜拳互动
+## prompt_version 是做什么的
 
-1. 启动摄像头
-2. 切到“猜拳互动”页
-3. 点击“开始猜拳”
-4. 对着摄像头出拳
-5. 程序识别后控制 O6 出克制手势
+`prompt_version/` 是给 OpenClaw 用的离线控制包模板，里面包含：
 
-## 常见问题
-
-### 1. `ModuleNotFoundError: No module named 'linkerbot'`
+- `PROMPT.md`：发给 OpenClaw 的最终提示词模板
+- `tools/o6_bridge.py`：脚本版 bridge
+- `run_bridge.ps1` / `run_bridge.cmd`：快捷入口
+- `o6_openclaw_config.template.json`：配置模板
+- `vendor/linkerbot/`：脚本模式所需 SDK 副本
 
 说明：
 
-- 当前虚拟环境里没有安装或配置 linkerbot SDK
+- 仓库中默认提交的是源码模板，不默认提交 `tools/o6_bridge.exe`
+- 如果你要做完全离线分发，可以在出包阶段额外放入 `o6_bridge.exe`
 
-处理：
+分发给学员时，推荐使用**打包产物中的顶层 `prompt_version/`**，不要让学员直接从源码仓库里东拼西凑。
 
-```bash
-python -c "from linkerbot import O6; print('ok')"
-```
+---
 
-如果这句不通，先别管 GUI，先把 SDK 环境配通。
+## 一键打包完整控制台
 
-### 2. `pip install -r requirements.txt` 失败
+安装 PyInstaller：
 
-常见原因：
-
-- Python 版本不对
-- 用错了解释器
-- 没进虚拟环境
-- 网络问题
-
-处理：
-
-```bash
-python --version
-pip --version
-where python
-```
-
-优先确认当前是不是 **Python 3.13 + 当前虚拟环境**。
-
-### 3. 程序启动了，但显示 O6 未连接
-
-常见原因：
-
-- O6 没供电
-- CAN 线没接好
-- PCAN 驱动没装
-- `runtime/config.json` 里 `interface_name` 写错
-- `side` 写错
-- linkerbot SDK 本身还没单独跑通
-
-建议按这个顺序排查：
-
-1. 看设备有没有正常供电
-2. 确认 PCAN 驱动已安装
-3. 打开 **PEAK-Settings / PCAN-View** 看当前接口名
-4. 对照修改 `runtime/config.json`
-5. 再单独用 linkerbot SDK 做一次最小测试
-
-### 4. 不知道 `interface_name` 该填什么
-
-最直接的方法：
-
-1. 安装 PEAK 驱动包
-2. 打开 **PEAK-Settings** 或 **PCAN-View**
-3. 找到当前 PCAN-USB 设备对应通道
-4. 看显示名称是不是：
-   - `PCAN_USBBUS1`
-   - `PCAN_USBBUS2`
-   - 其他类似名字
-5. 把这个名字填进 `runtime/config.json`
-
-如果你电脑只插了一个 PCAN-USB，常见就是：
-
-- `PCAN_USBBUS1`
-
-### 5. 已经装了驱动，但还是连不上
-
-检查这些点：
-
-- USB 口是否识别正常
-- 线缆是否接反或松动
-- 波特率 / 总线设置是否和设备一致
-- 设备是否被别的软件占用
-- 重插 USB 后接口名是否变化
-
-如果装了驱动，建议顺手打开：
-
-- **PEAK-Settings**：看设备是否存在
-- **PCAN-View**：看通道是否可打开
-
-如果这两个工具都看不到设备，先别怀疑你的 Python 代码，先处理驱动/硬件层。
-
-### 6. 摄像头打不开
-
-常见原因：
-
-- 摄像头被微信、QQ、浏览器、会议软件占用
-- 当前索引不是目标摄像头
-- 驱动异常
-
-处理：
-
-- 关闭占用摄像头的软件
-- 重新插拔摄像头
-- 更换摄像头索引再试
-
-### 7. 猜拳 / 跟随识别不稳定
-
-常见原因：
-
-- 光线太差
-- 背景太乱
-- 手没有完整进画面
-- 出拳或标定时动作不稳定
-
-处理：
-
-- 手尽量完整入镜
-- 保证单手、背景干净、光照充足
-- 标定时每个动作保持约 1 秒
-- 跟随时尽量不要频繁改变摄像头位置
-
-### 8. 跟随动作发抖
-
-这是视觉跟随类程序里最常见的问题，原因通常是：
-
-- 手部检测抖动
-- 标定不稳定
-- 视角变化大
-
-当前程序已经做了：
-
-- EMA 平滑
-- Deadband 抑制小幅变化
-
-如果还想继续压抖动，可以改：
-
-- `app/services/camera_teleop.py`
-
-重点看：
-
-- `SMOOTH_ALPHA`
-- `DEADBAND`
-
-### 9. 旧版本标定突然没了
-
-现在默认校准目录是：
-
-- `~/.xbotics_o6/calibration.json`
-
-但程序兼容旧路径：
-
-- `~/.xbotics3/calibration.json`
-
-如果你以前标定过，升级后一般会优先读取旧文件。
-
-如果没有读到，就检查两个目录下的文件是否真的存在。
-
-## 本地自打包
-
-使用 PyInstaller 打包为 Windows exe：
-
-```bash
+```powershell
 pip install pyinstaller
-py -3.13 -m PyInstaller --onefile --windowed --name "Xbotics_O6控制台" \
-  --add-data "assets;assets" --add-data "runtime;runtime" \
-  --hidden-import linkerbot --hidden-import can \
-  --hidden-import mediapipe --hidden-import cv2 \
-  --hidden-import PySide6 --hidden-import scipy \
-  main.py
 ```
 
-打包完成后，`dist/Xbotics_O6控制台.exe` 和 `assets/`、`runtime/` 一起分发即可。
+执行：
 
-## 协议
+```powershell
+python build_dist.py
+```
 
-本项目使用 **MIT License**，详见 `LICENSE`。
+打包完成后会生成：
+
+- `dist/Xbotics_O6控制台/`
+- `dist/Xbotics_O6控制台.zip`
+
+其中：
+
+- `Xbotics_O6控制台.exe`：主程序
+- `_internal/`：运行依赖
+- `prompt_version/`：给 OpenClaw 用的离线控制包
+- `README.txt`：分发包内说明
+
+这就是推荐发给学员的最终交付物。
+
+如果你要做完全离线分发，可在出包阶段把额外构建好的 `o6_bridge.exe` 放入 `dist/Xbotics_O6控制台/prompt_version/tools/`。
+
+---
+
+## 推荐交付方式
+
+### 给学员
+
+直接发：
+
+- `dist/Xbotics_O6控制台.zip`
+
+### 给 OpenClaw
+
+让用户：
+
+1. 解压完整控制台包
+2. 打开程序
+3. 点击 **OpenClaw 调用说明**
+4. 复制弹窗中的完整提示词
+5. 发给 OpenClaw
+
+这是当前最稳的使用路径。
+
+---
+
+## 常见问题
+
+### 1. 程序里显示 O6 未连接
+
+优先检查：
+
+- O6 是否上电
+- PCAN-USB 是否插好
+- `runtime/config.json` 中的 `side` 是否正确
+- `interface_name` 是否真的是当前机器上的通道名（如 `PCAN_USBBUS1`）
+- 当前 Python 环境是否能单独导入 `linkerbot`
+
+### 2. OpenClaw 调不通 bridge
+
+先用分发包里的 `prompt_version` 自检：
+
+```powershell
+.\run_bridge.ps1 --json doctor
+.\run_bridge.ps1 --json state
+.\run_bridge.ps1 --json pose --preset open_hand
+```
+
+如果返回里出现：
+
+- `pcan.available_channels = []`
+- `pcan.raw_bus_open = false`
+
+优先说明当前系统没有枚举到可用 PCAN 通道，应先检查：
+
+- PCAN-USB 是否插好
+- 驱动是否正常
+- PCAN-View 是否能看到设备
+- 通道是否被其他程序占用
+
+### 3. 学员电脑没有 Python
+
+如果你的分发包里额外放入了：
+
+- `prompt_version/tools/o6_bridge.exe`
+
+那么 OpenClaw 可以优先走 exe，不依赖学员本机 Python。
+
+如果没有这个 exe，则使用仓库默认提供的 `o6_bridge.py` 模板时，需要准备兼容的 Python 环境。
+
+### 4. `PROMPT.md` 里的路径还是占位符
+
+这是源码模板的正常表现。
+
+真正给 OpenClaw 用时，推荐通过程序里的 **OpenClaw 调用说明** 按钮复制；按钮会自动把占位符替换成真实路径。
+
+---
+
+## 当前仓库定位
+
+这个仓库现在包含两条完整链路：
+
+1. **GUI 主链路**：运行控制台，直接控制 O6
+2. **OpenClaw 链路**：通过 `prompt_version/` 和 bridge 给 OpenClaw 使用
+
+所以它既是：
+
+- 一个可运行的 O6 控制台项目
+- 也是一个可打包、可分发、可教学交付的最小源码仓库
+
+---
+
+## License
+
+本项目使用 MIT License，详见 `LICENSE`。
 
 第三方依赖和上游 SDK 仍遵循各自许可证。
-
-## 参考
-
-- LinkerBot 官网：https://www.linkerbot.cn/index
-- MediaPipe：https://chuoling.github.io/mediapipe/
-- python-can：https://python-can.readthedocs.io/
-- PEAK 驱动下载：https://www.peak-system.com/support/downloads/drivers/
-- PEAK Driver Packages：https://www.peak-system.com/support/downloads/drivers/driver-packages/
-- PCAN handle 定义：https://docs.peak-system.com/API/PCAN-Basic.Net/html/459b03fc-f14e-4e58-81c8-430229f7b27e.htm

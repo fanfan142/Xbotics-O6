@@ -5,13 +5,13 @@
 目标很简单：
 - 保留整个 `prompt_version/`
 - 把 `PROMPT.md` 发给 OpenClaw
-- 优先通过 `tools/o6_bridge.exe` 控制 O6
-- 只有在 exe 不存在时，才退回 `tools/o6_bridge.py`
+- 源码仓库默认提供 `tools/o6_bridge.py` 模板
+- 如果分发阶段额外放入 `tools/o6_bridge.exe`，则优先通过 exe 控制 O6
 
 ## 目录说明
 
-- `tools/o6_bridge.exe`：优先使用的离线 bridge，可直接运行
-- `tools/o6_bridge.py`：脚本版 bridge，作为兼容兜底
+- `tools/o6_bridge.py`：脚本版 bridge，源码仓库默认提供
+- `tools/o6_bridge.exe`：可选的离线 bridge，可在分发阶段额外放入
 - `vendor/linkerbot/`：随包分发的 SDK 副本
 - `PROMPT.md`：发给 OpenClaw 的最终提示词模板
 - `o6_openclaw_config.template.json`：配置模板
@@ -20,21 +20,21 @@
 
 ## 系统要求
 
-### 推荐方式
+### 分发阶段推荐方式
 
-推荐直接使用随包自带的：
+如果你的分发包里额外放入了：
 
 - `tools/o6_bridge.exe`
 
-这样**不依赖学员本机 Python**，更适合离线教学分发。
+那么可优先走 exe，这样**不依赖学员本机 Python**，更适合离线教学分发。
 
-### 脚本兜底方式
+### 源码仓库默认方式
 
-如果 `o6_bridge.exe` 丢失，再退回：
+仓库默认提供：
 
 - `tools/o6_bridge.py`
 
-此时才需要兼容的 Python 环境；`run_bridge.ps1` / `run_bridge.cmd` 会优先使用 `O6_BRIDGE_PYTHON`。
+这种方式需要兼容的 Python 环境；`run_bridge.ps1` / `run_bridge.cmd` 会优先使用 `O6_BRIDGE_PYTHON`。
 
 ## 第一次配置
 
