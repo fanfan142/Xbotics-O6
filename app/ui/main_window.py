@@ -261,7 +261,9 @@ class CameraPanel(QFrame):
         self._mirror = mirror
 
     def _on_shared_frame(self, bgr, detection) -> None:
-        rgb = cv2.cvtColor(cv2.flip(bgr, 1) if self._mirror else bgr, cv2.COLOR_BGR2RGB)
+        from app.services.camera_service import annotate_hand_overlay
+        annotated = annotate_hand_overlay(bgr, detection, mirrored=self._mirror)
+        rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
         h, w, _ = rgb.shape
         from PySide6.QtGui import QImage
         qimage = QImage(rgb.data, w, h, w * 3, QImage.Format_RGB888)
@@ -318,7 +320,9 @@ class RSPanel(QFrame):
         self._mirror = mirror
 
     def _on_shared_frame(self, bgr, detection) -> None:
-        rgb = cv2.cvtColor(cv2.flip(bgr, 1) if self._mirror else bgr, cv2.COLOR_BGR2RGB)
+        from app.services.camera_service import annotate_hand_overlay
+        annotated = annotate_hand_overlay(bgr, detection, mirrored=self._mirror)
+        rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
         h, w, _ = rgb.shape
         from PySide6.QtGui import QImage
         qimage = QImage(rgb.data, w, h, w * 3, QImage.Format_RGB888)
