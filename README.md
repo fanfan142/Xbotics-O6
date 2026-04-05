@@ -33,7 +33,7 @@ Xbotics-O6/
 
 ### Python
 
-- 推荐 Python 3.11+
+- 推荐 Python 3.12（3.11+ 也可）
 - `prompt_version/tools/o6_bridge.py` 脚本模式建议 Python 3.12+
 
 ### 硬件
@@ -53,9 +53,23 @@ cd Xbotics-O6
 
 ### 2) 创建并激活虚拟环境（PowerShell）
 
+先查看本机可用 Python：
+
 ```powershell
-py -3.11 -m venv .venv
+py -0p
+```
+
+优先使用 3.12（若无 3.12，可把下方命令中的 `3.12` 替换为你本机已安装版本）：
+
+```powershell
+py -3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+若激活时报执行策略错误，可先执行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
 ### 3) 安装依赖
@@ -67,7 +81,7 @@ pip install -r requirements.txt
 ### 4) 检查 O6 SDK 可用性
 
 ```powershell
-python -c "from linkerbot import O6; print('linkerbot ok')"
+python -c "import sys, pathlib; p=pathlib.Path('prompt_version/vendor').resolve(); sys.path.insert(0,str(p)); from linkerbot import O6; print('linkerbot ok')"
 ```
 
 ### 5) 配置运行参数
@@ -139,6 +153,33 @@ python build_dist.py
 - PCAN-USB 是否连接正常
 - `runtime/config.json` 中 `side` 与 `interface_name` 是否正确
 - 当前 Python 环境是否可导入 `linkerbot`
+
+### `No suitable Python runtime found`
+
+通常是命令里指定的 Python 版本未安装（例如 `py -3.11` 但机器只有 3.12）。
+
+处理方式：
+
+1. 先执行 `py -0p` 查看可用版本
+2. 用已安装版本创建 venv（例如 `py -3.12 -m venv .venv`）
+
+### `.\.venv\Scripts\Activate.ps1` 找不到
+
+通常是上一条 `py -x.y -m venv .venv` 没有成功执行，导致 `.venv` 未创建。
+
+处理方式：
+
+1. 先确认目录中存在 `.venv\Scripts\Activate.ps1`
+2. 若不存在，先重建：`py -3.12 -m venv .venv`
+3. 若存在但被策略拦截，先执行 `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` 后再激活
+
+### `ModuleNotFoundError: linkerbot`
+
+源码模式依赖仓库内 `prompt_version/vendor/linkerbot`。请确认：
+
+1. 目录 `prompt_version/vendor/linkerbot` 存在
+2. 从仓库根目录执行 `python main.py`
+3. 若仍报错，用第 4 步的 SDK 检查命令验证导入路径
 
 ### OpenClaw bridge 调用失败
 
