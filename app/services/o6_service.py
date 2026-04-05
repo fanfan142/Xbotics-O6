@@ -72,7 +72,6 @@ class O6Service:
                 interface_name=self._interface_name,
                 interface_type=self._interface_type,
             )
-            self._hand.stop_polling()
             self._connected = True
             self._error = None
             return True
@@ -86,7 +85,6 @@ class O6Service:
         with self._lock:
             if self._hand is not None:
                 try:
-                    self._hand.stop_polling()
                     self._hand.close()
                 except Exception:
                     pass
@@ -107,10 +105,6 @@ class O6Service:
                 self._connected = False
                 if hand is not None:
                     try:
-                        hand.stop_polling()
-                    except Exception:
-                        pass
-                    try:
                         hand.close()
                     except Exception:
                         pass
@@ -127,9 +121,9 @@ class O6Service:
             return None
         try:
             with self._lock:
-                snap = self._hand.get_snapshot()
-            if snap.angle is not None:
-                return snap.angle.angles.to_list()
+                data = self._hand.angle.get_current_angles()
+            if data is not None:
+                return data.angles.to_list()
             return None
         except Exception:
             with self._lock:
@@ -137,10 +131,6 @@ class O6Service:
                 self._hand = None
                 self._connected = False
                 if hand is not None:
-                    try:
-                        hand.stop_polling()
-                    except Exception:
-                        pass
                     try:
                         hand.close()
                     except Exception:

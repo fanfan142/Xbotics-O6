@@ -22,6 +22,7 @@ from app.constants import (
     PROMPT_VERSION_SOURCE_DIR,
     RUNTIME_CONFIG_PATH,
 )
+from app.services.camera_service import annotate_hand_overlay
 from app.services.o6_service import O6Service
 
 APP_STYLE = """
@@ -261,7 +262,9 @@ class CameraPanel(QFrame):
         self._mirror = mirror
 
     def _on_shared_frame(self, bgr, detection) -> None:
-        rgb = cv2.cvtColor(cv2.flip(bgr, 1) if self._mirror else bgr, cv2.COLOR_BGR2RGB)
+        frame = cv2.flip(bgr, 1) if self._mirror else bgr
+        annotated = annotate_hand_overlay(frame, detection, mirrored=self._mirror)
+        rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
         h, w, _ = rgb.shape
         from PySide6.QtGui import QImage
         qimage = QImage(rgb.data, w, h, w * 3, QImage.Format_RGB888)
@@ -318,7 +321,9 @@ class RSPanel(QFrame):
         self._mirror = mirror
 
     def _on_shared_frame(self, bgr, detection) -> None:
-        rgb = cv2.cvtColor(cv2.flip(bgr, 1) if self._mirror else bgr, cv2.COLOR_BGR2RGB)
+        frame = cv2.flip(bgr, 1) if self._mirror else bgr
+        annotated = annotate_hand_overlay(frame, detection, mirrored=self._mirror)
+        rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
         h, w, _ = rgb.shape
         from PySide6.QtGui import QImage
         qimage = QImage(rgb.data, w, h, w * 3, QImage.Format_RGB888)
